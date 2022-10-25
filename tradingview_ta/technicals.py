@@ -12,7 +12,7 @@ class Recommendation:
     error = "ERROR"
 
 class Compute:
-    def MA(ma, close):
+    def MA(self, close):
         """Compute Moving Average
 
         Args:
@@ -22,14 +22,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (ma < close):
+        if self < close:
             return Recommendation.buy
-        elif (ma > close):
+        elif self > close:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def RSI(rsi, rsi1):
+    def RSI(self, rsi1):
         """Compute Relative Strength Index
 
         Args:
@@ -39,14 +39,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (rsi < 30 and rsi1 < rsi):
+        if self < 30 and rsi1 < self:
             return Recommendation.buy
-        elif (rsi > 70 and rsi1 > rsi):
+        elif self > 70 and rsi1 > self:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def Stoch(k, d, k1, d1):
+    def Stoch(self, d, k1, d1):
         """Compute Stochastic
 
         Args:
@@ -58,14 +58,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (k < 20 and d < 20 and k > d and k1 < d1):
+        if self < 20 and d < 20 and self > d and k1 < d1:
             return Recommendation.buy
-        elif (k > 80 and d > 80 and k < d and k1 > d1):
+        elif self > 80 and d > 80 and self < d and k1 > d1:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def CCI20(cci20, cci201):
+    def CCI20(self, cci201):
         """Compute Commodity Channel Index 20
 
         Args:
@@ -75,14 +75,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (cci20 < -100 and cci20 > cci201):
+        if self < -100 and self > cci201:
             return Recommendation.buy
-        elif (cci20 > 100 and cci20 < cci201):
+        elif self > 100 and self < cci201:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def ADX(adx, adxpdi, adxndi, adxpdi1, adxndi1):
+    def ADX(self, adxpdi, adxndi, adxpdi1, adxndi1):
         """Compute Average Directional Index
 
         Args:
@@ -95,14 +95,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (adx > 20 and adxpdi1 < adxndi1 and adxpdi > adxndi):
+        if self > 20 and adxpdi1 < adxndi1 and adxpdi > adxndi:
             return Recommendation.buy
-        elif (adx > 20 and adxpdi1 > adxndi1 and adxpdi < adxndi):
+        elif self > 20 and adxpdi1 > adxndi1 and adxpdi < adxndi:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def AO(ao, ao1, ao2):
+    def AO(self, ao1, ao2):
         """Compute Awesome Oscillator
 
         Args:
@@ -113,14 +113,28 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (ao > 0 and ao1 < 0) or (ao > 0 and ao1 > 0 and ao > ao1 and ao2 > ao1):
+        if (
+            self > 0
+            and ao1 < 0
+            or self > 0
+            and ao1 > 0
+            and self > ao1
+            and ao2 > ao1
+        ):
             return Recommendation.buy
-        elif (ao < 0 and ao1 > 0) or (ao < 0 and ao1 < 0 and ao < ao1 and ao2 < ao1):
+        elif (
+            self < 0
+            and ao1 > 0
+            or self < 0
+            and ao1 < 0
+            and self < ao1
+            and ao2 < ao1
+        ):
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def Mom(mom, mom1):
+    def Mom(self, mom1):
         """Compute Momentum
 
         Args:
@@ -130,14 +144,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (mom < mom1):
+        if self < mom1:
             return Recommendation.sell
-        elif (mom > mom1):
+        elif self > mom1:
             return Recommendation.buy
         else:
             return Recommendation.neutral
 
-    def MACD(macd, signal):
+    def MACD(self, signal):
         """Compute Moving Average Convergence/Divergence
 
         Args:
@@ -147,14 +161,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (macd > signal):
+        if self > signal:
             return Recommendation.buy
-        elif (macd < signal):
+        elif self < signal:
             return Recommendation.sell
         else:
             return Recommendation.neutral
         
-    def BBBuy(close, bblower):
+    def BBBuy(self, bblower):
         """Compute Bull Bear Buy
 
         Args:
@@ -164,12 +178,9 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (close < bblower):
-            return Recommendation.buy
-        else:
-            return Recommendation.neutral
+        return Recommendation.buy if self < bblower else Recommendation.neutral
 
-    def BBSell(close, bbupper):
+    def BBSell(self, bbupper):
         """Compute Bull Bear Sell
 
         Args:
@@ -179,12 +190,9 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (close > bbupper):
-            return Recommendation.sell
-        else:
-            return Recommendation.neutral
+        return Recommendation.sell if self > bbupper else Recommendation.neutral
 
-    def PSAR(psar, open):
+    def PSAR(self, open):
         """Compute Parabolic Stop-And-Reverse
 
         Args:
@@ -194,14 +202,14 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (psar < open):
+        if self < open:
             return Recommendation.buy
-        elif (psar > open):
+        elif self > open:
             return Recommendation.sell
         else:
             return Recommendation.neutral
 
-    def Recommend(value):
+    def Recommend(self):
         """Compute Recommend
 
         Args:
@@ -210,20 +218,20 @@ class Compute:
         Returns:
             string: "STRONG_BUY", "BUY", "NEUTRAL", "SELL", "STRONG_SELL", or "ERROR"
         """
-        if value >= -1 and value < -.5:
+        if self >= -1 and self < -0.5:
             return Recommendation.strong_sell
-        elif value >= -.5 and value < -.1:
+        elif self >= -0.5 and self < -0.1:
             return Recommendation.sell
-        elif value >= -.1 and value <= .1:
+        elif self >= -0.1 and self <= 0.1:
             return Recommendation.neutral
-        elif value > .1 and value <= .5 :
+        elif self > 0.1 and self <= 0.5:
             return Recommendation.buy
-        elif value > .5 and value <= 1:
+        elif self > 0.5 and self <= 1:
             return Recommendation.strong_buy
         else:
             return Recommendation.error
 
-    def Simple(value):
+    def Simple(self):
         """Compute Simple
 
         Args:
@@ -232,9 +240,9 @@ class Compute:
         Returns:
             string: "BUY", "SELL", or "NEUTRAL"
         """
-        if (value == -1):
+        if self == -1:
             return Recommendation.sell
-        elif (value == 1):
+        elif self == 1:
             return Recommendation.buy
         else:
             return Recommendation.neutral
