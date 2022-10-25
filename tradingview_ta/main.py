@@ -48,7 +48,7 @@ class TradingView:
 
     scan_url = "https://scanner.tradingview.com/"
 
-    def data(symbols, interval, indicators):
+    def data(self, interval, indicators):
         """Format TradingView's Scanner Post Data
 
         Args:
@@ -92,12 +92,15 @@ class TradingView:
             # Default, 1 Day
             data_interval = ""
 
-        data_json = {"symbols": {"tickers": [symbol.upper() for symbol in symbols], "query": {
-            "types": []}}, "columns": [x + data_interval for x in indicators]}
+        return {
+            "symbols": {
+                "tickers": [symbol.upper() for symbol in symbols],
+                "query": {"types": []},
+            },
+            "columns": [x + data_interval for x in indicators],
+        }
 
-        return data_json
-
-    def search(text, type=None):
+    def search(self, type=None):
         """Search for assets on TradingView. Returns the symbol, exchange, type, and description of the asset.
 
         Args:
@@ -105,7 +108,10 @@ class TradingView:
             type (str, optional): Type of asset (stock, crypto, futures, index). Defaults to None.
         """
         req = requests.post(
-            "https://symbol-search.tradingview.com/symbol_search", params={"text": text, "type": type})
+            "https://symbol-search.tradingview.com/symbol_search",
+            params={"text": self, "type": type},
+        )
+
         symbols = json.loads(req.text)
         res = []
         for symbol in symbols:
@@ -129,14 +135,12 @@ def calculate(indicators, indicators_key, screener, symbol, exchange, interval):
 
     indicators = list(indicators.values())
 
-    # RECOMMENDATIONS
-    if None not in indicators[0:2]:
-        recommend_oscillators = Compute.Recommend(indicators[0])
-        recommend_summary = Compute.Recommend(indicators[1])
-        recommend_moving_averages = Compute.Recommend(indicators[2])
-    else:
+    if None in indicators[:2]:
         return None
 
+    recommend_oscillators = Compute.Recommend(indicators[0])
+    recommend_summary = Compute.Recommend(indicators[1])
+    recommend_moving_averages = Compute.Recommend(indicators[2])
     # OSCILLATORS
     # RSI (14)
     if None not in indicators[3:5]:
@@ -349,21 +353,20 @@ class TA_Handler(object):
         exchange_symbol = f"{self.exchange}:{self.symbol}"
         data = TradingView.data([exchange_symbol], self.interval, indicators)
         scan_url = f"{TradingView.scan_url}{self.screener.lower()}/scan"
-        headers = {"User-Agent": "tradingview_ta/{}".format(__version__)}
+        headers = {"User-Agent": f"tradingview_ta/{__version__}"}
         response = requests.post(
             scan_url, json=data, headers=headers, timeout=self.timeout, proxies=self.proxies)
 
         # Return False if can't get data
         if response.status_code != 200:
-            raise Exception("Can't access TradingView's API. HTTP status code: {}. Check for invalid symbol, exchange, or indicators.".format(
-                response.status_code))
+            raise Exception(
+                f"Can't access TradingView's API. HTTP status code: {response.status_code}. Check for invalid symbol, exchange, or indicators."
+            )
+
 
         result = json.loads(response.text)["data"]
         if result != []:
-            indicators_val = {}
-            for x in range(len(indicators)):
-                indicators_val[indicators[x]] = result[0]["d"][x]
-            return indicators_val
+            return {indicators[x]: result[0]["d"][x] for x in range(len(indicators))}
         else:
             raise Exception("Exchange or symbol not found.")
 
@@ -417,7 +420,7 @@ def get_multiple_analysis(screener, interval, symbols, additional_indicators=[],
 
     data = TradingView.data(symbols, interval, indicators_key)
     scan_url = f"{TradingView.scan_url}{screener.lower()}/scan"
-    headers = {"User-Agent": "tradingview_ta/{}".format(__version__)}
+    headers = {"User-Agent": f"tradingview_ta/{__version__}"}
     response = requests.post(
         scan_url, json=data, headers=headers, timeout=timeout, proxies=proxies)
 
@@ -426,9 +429,10 @@ def get_multiple_analysis(screener, interval, symbols, additional_indicators=[],
 
     for analysis in result:
         # Convert list to dict
-        indicators = {}
-        for x in range(len(analysis["d"])):
-            indicators[indicators_key[x]] = analysis["d"][x]
+        indicators = {
+            indicators_key[x]: analysis["d"][x]
+            for x in range(len(analysis["d"]))
+        }
 
         final[analysis["s"]] = calculate(indicators=indicators, indicators_key=indicators_key, screener=screener, symbol=analysis["s"].split(
             ":")[1], exchange=analysis["s"].split(":")[0], interval=interval)
